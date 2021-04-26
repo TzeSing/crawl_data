@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""selenium+chrome爬取，比较慢
+"""
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
