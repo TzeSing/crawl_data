@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """requests爬取所有链接，然后再分批爬取链接里的内容
 """
+import json
+import random
+import time
+
 import requests
 from lxml import etree
 
@@ -17,8 +21,46 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36'
 }
 
-resp = requests.get('https://gz.ke.com/ershoufang/dongshankou/')
+distinct_urls = ['https://gz.ke.com/ershoufang/tianhe/',
+                 'https://gz.ke.com/ershoufang/yuexiu/',
+                 'https://gz.ke.com/ershoufang/liwan/',
+                 'https://gz.ke.com/ershoufang/haizhu/',
+                 'https://gz.ke.com/ershoufang/panyu/',
+                 'https://gz.ke.com/ershoufang/baiyun/',
+                 'https://gz.ke.com/ershoufang/huangpugz/',
+                 'https://gz.ke.com/ershoufang/conghua/',
+                 'https://gz.ke.com/ershoufang/zengcheng/',
+                 'https://gz.ke.com/ershoufang/huadou/',
+                 'https://gz.ke.com/ershoufang/nansha/',
+                 'https://gz.ke.com/ershoufang/nanhai/',
+                 'https://gz.ke.com/ershoufang/shunde/'
+                 ]
 
-tree = etree.HTML(resp.content)
+with open('urls.txt', 'r') as f:
+    area_urls = f.read().split('\n')
 
-print(tree.xpath('//*[@id="beike"]/div[1]/div[3]/div[1]/dl[2]/dd/div[1]/div[1]/a[2]/@title')[0].strip())
+# 获取各区下面的区域url
+# with open('urls.txt', 'w', encoding='utf-8') as f:
+#     for url in distinct_urls:
+#         time.sleep(2 + round(random.random(), 2))
+#         resp = requests.get(url, headers=headers)
+#         tree = etree.HTML(resp.content)
+#         urls = tree.xpath('//*[@id="beike"]//dd//*[@data-role="ershoufang"]/div[2]/a/@href')
+#         for u in urls:
+#             f.write(f'https://gz.ke.com{u}\n')
+
+# 获取各区域下的页数
+with open('url_with_num.txt', 'w', encoding='utf-8') as f:
+    for url in area_urls:
+        time.sleep(2 + round(random.random(), 2))
+        resp = requests.get(url, headers=headers)
+        tree = etree.HTML(resp.content)
+        try:
+            page = tree.xpath('//*[@comp-module="page"]/@page-data')[0]
+            total_page = json.loads(page)['totalPage']
+            f.write(f'{url} {total_page}\n')
+        except:
+            print(url)
+            print(tree.xpath('//*[@comp-module="page"]/@page-data'))
+            print()
+
