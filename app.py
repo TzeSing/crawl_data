@@ -36,9 +36,6 @@ distinct_urls = ['https://gz.ke.com/ershoufang/tianhe/',
                  'https://gz.ke.com/ershoufang/shunde/'
                  ]
 
-with open('urls.txt', 'r') as f:
-    area_urls = f.read().split('\n')
-
 # 获取各区下面的区域url
 # with open('urls.txt', 'w', encoding='utf-8') as f:
 #     for url in distinct_urls:
@@ -49,18 +46,38 @@ with open('urls.txt', 'r') as f:
 #         for u in urls:
 #             f.write(f'https://gz.ke.com{u}\n')
 
+# with open('urls.txt', 'r') as f:
+#     area_urls = f.read().split('\n')
+
 # 获取各区域下的页数
-with open('url_with_num.txt', 'w', encoding='utf-8') as f:
-    for url in area_urls:
-        time.sleep(2 + round(random.random(), 2))
-        resp = requests.get(url, headers=headers)
-        tree = etree.HTML(resp.content)
-        try:
-            page = tree.xpath('//*[@comp-module="page"]/@page-data')[0]
-            total_page = json.loads(page)['totalPage']
-            f.write(f'{url} {total_page}\n')
-        except:
-            print(url)
-            print(tree.xpath('//*[@comp-module="page"]/@page-data'))
-            print()
+# with open('url_with_num.txt', 'w', encoding='utf-8') as f:
+#     for url in area_urls:
+#         time.sleep(2 + round(random.random(), 2))
+#         resp = requests.get(url, headers=headers)
+#         tree = etree.HTML(resp.content)
+#         try:
+#             page = tree.xpath('//*[@comp-module="page"]/@page-data')[0]
+#             total_page = json.loads(page)['totalPage']
+#             f.write(f'{url} {total_page}\n')
+#         except:
+#             print(url)
+#             print(tree.xpath('//*[@comp-module="page"]/@page-data'))
+#             print()
+
+with open('area_url_with_num.txt', 'r', encoding='utf-8') as f:
+    urls = f.read().strip().split('\n')
+
+with open('house_url.txt', 'a', encoding='utf-8') as fw:
+    for url in urls:
+        url, total_num = url.strip().split(' ')
+        for i in range(1, int(total_num) + 1):
+            tmp_url = url + f'/pg{i}'
+            time.sleep(2 + round(random.random(), 2))
+            resp = requests.get(tmp_url, headers=headers)
+            print(resp.status_code)
+            tree = etree.HTML(resp.content)
+            house_url = tree.xpath('//*[@id="beike"]//ul[@class="sellListContent"]/li//div[@class="title"]/a/@href')
+            for u in house_url:
+                fw.write(u + '\n')
+            print(f'状态码: {resp.status_code}, 已完成: {tmp_url}')
 
